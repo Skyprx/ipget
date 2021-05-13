@@ -9,7 +9,7 @@ env:
 language: go
 
 go:
-    - 1.13.10
+    - 1.16.x
 
 script:
   - make build
