@@ -1,10 +1,22 @@
+> [!IMPORTANT]
+> **This project is no longer maintained and the repository is archived.**
+>
+> Use [`ipfs get`](https://docs.ipfs.tech/reference/kubo/cli/#ipfs-get) from
+> [Kubo](https://github.com/ipfs/kubo) instead. It serves this use case better:
+> same downloads, one less tool to keep up to date, and a node that stays warm
+> between fetches rather than starting from nothing each time.
+>
+> The published binaries stay up and keep working, but there will be no further
+> releases, dependency updates, or security fixes.
+>
+> The repository can be unarchived, but only for a named maintainer who commits
+> to keeping it up. If that is you, reach out to the
+> [IPFS Foundation](https://ipfsfoundation.org/about/).
+
 # ipget
 
-[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](http://ipn.io)
-[![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](http://ipfs.io/)
-[![](https://img.shields.io/badge/freenode-%23ipfs-blue.svg?style=flat-square)](http://webchat.freenode.net/?channels=%23ipfs)
-[![standard-readme compliant](https://img.shields.io/badge/standard--readme-OK-green.svg?style=flat-square)](https://github.com/RichardLitt/standard-readme)
-[![Build Status](https://secure.travis-ci.org/ipfs/ipget.png?branch=master)](http://travis-ci.org/ipfs/ipget)
+[![](https://img.shields.io/badge/made%20by-Protocol%20Labs-blue.svg?style=flat-square)](https://protocol.ai)
+[![](https://img.shields.io/badge/project-IPFS-blue.svg?style=flat-square)](https://ipfs.io/)
 
 > wget for IPFS: retrieve files over IPFS and save them locally.
 
@@ -17,21 +29,12 @@ for whenever they want to retrieve files from IPFS.
 
 ## Install
 
-Download a binary for your platform from [IPFS Distributions](https://dist.ipfs.io/#ipget).
+Download a binary for your platform from [GitHub Releases](https://github.com/ipfs/ipget/releases/latest).
 
 ### Install From Source
 
-`ipget` doesn't use the vanilla Go package management system. It instead uses
-the [gx](https://github.com/whyrusleeping/gx) (and
-[gx-go](https://github.com/whyrusleeping/gx-go)) workflow. This means a slightly
-different set of steps to install:
-
 ```
-$ go get -d github.com/ipfs/ipget
-
-$ cd ${GOPATH}/src/github.com/ipfs/ipget
-
-$ make install
+$ go install github.com/ipfs/ipget@latest
 ```
 
 ### Example
@@ -50,8 +53,6 @@ or even IPNS addresses (note this is an IPNS address example and does not work):
 $ ipget /ipns/QmQG1kwx91YQsGcsa9Z1p6BPJ3amdiSLLmsmAoEMwbX61b/files/cat.gif
 ```
 
-
-
 ## Usage
 
 ```
@@ -62,13 +63,18 @@ USAGE:
    ipget [global options] command [command options] [arguments...]
 
 VERSION:
-   0.2.0
+   see version.json
 
 COMMANDS:
+   help, h  Shows a list of commands or help for one command
+
 GLOBAL OPTIONS:
    --output value, -o value  specify output location
-   --help, -h                show help
-   --version, -v             print the version
+   --node value, -n value    specify ipfs node strategy ("local", "spawn", "temp" or "fallback") (default: "fallback")
+   --peers value, -p value   specify a set of IPFS peers to connect to
+   --progress                show a progress bar (default: false)
+   --help, -h                show help (default: false)
+   --version, -v             print the version (default: false)
 ```
 
 ## Contribute

@@ -7,7 +7,7 @@
 # NOTE: run with TEST_VERBOSE=1 for verbose sharness tests.
 
 T = $(sort $(wildcard t[0-9][0-9][0-9][0-9]-*.sh))
-BINS = bin/ipget bin/ipfs bin/go-sleep bin/pollEndpoint
+BINS = bin/ipget bin/ipfs
 SHARNESS = lib/sharness/sharness.sh
 
 find_go_files = $(shell find $(1) -name "*.go")
@@ -44,18 +44,10 @@ bin/ipget:
 	$(MAKE) -C .. build
 	cp ../ipget bin/ipget
 
+# Usee the linked kubo.
 bin/ipfs:
 	mkdir -p bin
-	go get github.com/ipfs/ipfs-update
-	ipfs-update fetch v0.4.22 --output=bin/ipfs
-
-bin/go-sleep:
-	go get -d github.com/chriscool/go-sleep
-	go build -o bin/go-sleep github.com/chriscool/go-sleep
-
-bin/pollEndpoint:
-	go get -d github.com/whyrusleeping/pollEndpoint
-	go build -o bin/pollEndpoint github.com/whyrusleeping/pollEndpoint
+	cd dependencies && go build -o ../bin/ipfs github.com/ipfs/kubo/cmd/ipfs
 
 race:
 	make GOFLAGS=-race all

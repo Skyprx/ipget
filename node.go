@@ -3,21 +3,25 @@ package main
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
+	"os"
 	"path/filepath"
 
-	"github.com/ipfs/go-ipfs-config"
-	"github.com/ipfs/go-ipfs/core"
-	"github.com/ipfs/go-ipfs/core/coreapi"
-	"github.com/ipfs/go-ipfs/core/node/libp2p"
-	"github.com/ipfs/go-ipfs/plugin/loader"
-	"github.com/ipfs/go-ipfs/repo/fsrepo"
-	"github.com/ipfs/interface-go-ipfs-core"
+	config "github.com/ipfs/kubo/config"
+	"github.com/ipfs/kubo/core"
+	"github.com/ipfs/kubo/core/coreapi"
+	iface "github.com/ipfs/kubo/core/coreiface"
+	"github.com/ipfs/kubo/core/coreiface/options"
+	"github.com/ipfs/kubo/core/node/libp2p"
+	"github.com/ipfs/kubo/plugin/loader"
+	"github.com/ipfs/kubo/repo/fsrepo"
 )
 
 type CfgOpt func(*config.Config)
 
 func spawn(ctx context.Context) (iface.CoreAPI, error) {
+	fmt.Fprint(os.Stderr, "Downloading from IPFS node with existing repo... ")
+
 	defaultPath, err := config.PathRoot()
 	if err != nil {
 		// shouldn't be possible
@@ -29,11 +33,12 @@ func spawn(ctx context.Context) (iface.CoreAPI, error) {
 	}
 
 	ipfs, err := open(ctx, defaultPath)
-	if err == nil {
-		return ipfs, nil
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "failed")
+		return tmpNode(ctx)
 	}
 
-	return tmpNode(ctx)
+	return ipfs, nil
 }
 
 func setupPlugins(path string) error {
@@ -89,19 +94,35 @@ func temp(ctx context.Context) (iface.CoreAPI, error) {
 }
 
 func tmpNode(ctx context.Context) (iface.CoreAPI, error) {
-	dir, err := ioutil.TempDir("", "ipfs-shell")
+	fmt.Fprint(os.Stderr, "Downloading from IPFS node with temporary repo... ")
+
+	dir, err := os.MkdirTemp("", "ipfs-shell")
 	if err != nil {
 		return nil, fmt.Errorf("failed to get temp dir: %s", err)
 	}
 
-	cfg, err := config.Init(ioutil.Discard, 2048)
+	// Cleanup temp dir on exit
+	addCleanup(func() error {
+		return os.RemoveAll(dir)
+	})
+
+	identity, err := config.CreateIdentity(io.Discard, []options.KeyGenerateOption{
+		options.Key.Type(options.Ed25519Key),
+	})
+	if err != nil {
+		return nil, err
+	}
+	cfg, err := config.InitWithIdentity(identity)
 	if err != nil {
 		return nil, err
 	}
 
 	// configure the temporary node
-	cfg.Routing.Type = "dhtclient"
-	cfg.Experimental.QUIC = true
+	cfg.Addresses.Announce = nil // Don't announce any addresses
+
+	cfg.Routing.Type = config.NewOptionalString("dhtclient")
+
+	cfg.Datastore.NoSync = true
 
 	err = fsrepo.Init(dir, cfg)
 	if err != nil {

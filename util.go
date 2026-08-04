@@ -5,8 +5,8 @@ import (
 	"log"
 	"sync"
 
-	iface "github.com/ipfs/interface-go-ipfs-core"
-	peer "github.com/libp2p/go-libp2p-core/peer"
+	iface "github.com/ipfs/kubo/core/coreiface"
+	peer "github.com/libp2p/go-libp2p/core/peer"
 	ma "github.com/multiformats/go-multiaddr"
 )
 
